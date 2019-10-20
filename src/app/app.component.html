@@ -1,24 +1,58 @@
-<form [formGroup]="form">
+<mat-toolbar color="primary">
+  <span class="fill-remaining-space">Angular Material AutoComplete Example</span>
+</mat-toolbar>
 
-    <mat-form-field class="full-width">
-        <input type="text" placeholder="Project" 
-                aria-label="Number" 
-                matInput formControlName="project" 
-                [matAutocomplete]="projectAutoComplete"
-                [(ngModel)]="state" >
-        <mat-autocomplete #projectAutoComplete="matAutocomplete">
-            <mat-option *ngFor="let project of filteredOptions | async" [value]="project">
-                {{ project }}
-            </mat-option>
-        </mat-autocomplete>
+<div class="container">
+    <form [formGroup]="form" class="form">
 
-        <mat-error *ngIf="form.controls['project'].hasError('required')">
-            Please enter a value
-        </mat-error>
+        <mat-form-field class="form-element">
+            <input  type="text" placeholder="Users" 
+                    aria-label="Number"
+                    required 
+                    matInput formControlName="formUserControl" 
+                    [matAutocomplete]="projectAutoComplete"
+                    [(ngModel)]="user"
+                    (blur)="getAlbumsByUser(user?.id)">
+            <mat-autocomplete #projectAutoComplete="matAutocomplete" [displayWith]="displayFn"> 
+                <mat-option *ngFor="let user of filteredUsersOptions | async" [value]="user">
+                    {{ user.name }}
+                </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="form.controls['formUserControl'].hasError('required')">
+                Please enter a value
+            </mat-error>
+            <mat-error *ngIf="form.controls['formUserControl'].hasError('incorrect')">
+                Please select a valid user
+            </mat-error>
+        </mat-form-field>
 
-        <mat-error *ngIf="form.controls['project'].hasError('incorrect')">
-            Please select a valid project
-        </mat-error>
-    </mat-form-field>
+        <mat-form-field class="form-element">
+            <input type="text" placeholder="Albums" 
+                    aria-label="Number" 
+                    matInput formControlName="formAlbumsControl" 
+                    [matAutocomplete]="AlbumsAutoComplete"
+                    required>
+            <mat-autocomplete #AlbumsAutoComplete="matAutocomplete"> 
+                <mat-option *ngFor="let album of (albums.length === 0 ? [] : (filteredAlbumsOptions | async))" [value]="album.title">
+                    {{ album.title }}
+                </mat-option>
+            </mat-autocomplete>
+             <mat-error *ngIf="form.controls['formAlbumsControl'].hasError('required')">
+                Please enter a value
+            </mat-error>
+            <mat-error *ngIf="form.controls['formAlbumsControl'].hasError('incorrect')">
+                Please select a valid album
+            </mat-error>
+        </mat-form-field>
 
-</form>
+        <div class="form-element">
+            <button mat-raised-button color="primary" 
+                    class="button" 
+                    (click)="getUser()"
+                    [disabled]="!form.valid">
+                Send...
+            </button>
+        </div>
+
+    </form>
+</div>
