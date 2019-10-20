@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
-import {map, startWith, filter} from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 import { FormCustomValidators } from './validators/FormCustomValidators';
 import { UserService } from './service/user.service';
 import { UserDTO } from './model/UserDTO';
@@ -22,16 +22,17 @@ export class AppComponent implements OnInit {
   @ViewChild(MatAutocompleteTrigger) trigger: MatAutocompleteTrigger;
   @ViewChild('focusMe') _focusMe: ElementRef;
 
-  user: UserDTO;
+  user: string;
   users: Array<UserDTO>;
   filteredUsersOptions: Observable<UserDTO[]>;
 
-  album: AlbumDTO;
+  album: string;
   albums: Array<AlbumDTO>;
   filteredAlbumsOptions: Observable<AlbumDTO[]>;
 
   constructor(private userService: UserService, 
-              private albumService: AlbumService) {
+              private albumService: AlbumService,
+              private fb: FormBuilder) {
 
     this.users = new Array<UserDTO>();
     this.albums = new Array<AlbumDTO>();
@@ -43,19 +44,17 @@ export class AppComponent implements OnInit {
   }
 
   private initForm(): void {
-    this.form = new FormGroup({
+    this.form = this.fb.group({
       formUserControl: new FormControl('', [Validators.required]),
       formAlbumsControl: new FormControl({value: '', disabled: true}, [Validators.required])
     });
 
     this.filteredUsersOptions = this.form.get('formUserControl').valueChanges.pipe(
       startWith(''),
-      filter(value => typeof value === 'string'),
       map(value => this._filterUsers(value))
     );
     this.filteredAlbumsOptions = this.form.get('formAlbumsControl').valueChanges.pipe(
       startWith(''),
-      filter(value => typeof value === 'string'),
       map(value => this._filterAlbums(value))
     );
   }
@@ -71,7 +70,8 @@ export class AppComponent implements OnInit {
   }
 
   private addValidUserSelected() {
-    this.form.get('formUserControl').setValidators(FormCustomValidators.valueSelected(this.users));
+    const userNames = this.users.map(user => user.name);
+    this.form.get('formUserControl').setValidators(FormCustomValidators.valueSelected(userNames));
   }
 
   private addValidAlbumsSelected() {
@@ -89,13 +89,19 @@ export class AppComponent implements OnInit {
     );
   }
 
+  private getUserIdFromUserName(userName: string): number {
+    return this.users.find(user => user.name === userName).id;
+  }
+
   private verificaSeDeveHabilitarFormAlbumsControl(): void {
     const formAlbumsControl = this.form.get('formAlbumsControl');
     this.albums.length > 0 ? formAlbumsControl.enable() : formAlbumsControl.disable();
   }
 
-  getAlbumsByUser(userId: number) {
-    console.log('User Id: ', userId);
+  getAlbumsByUser(userName: string) {
+    console.log('User Name: ', userName);
+    const userId = this.getUserIdFromUserName(userName);
+    console.log('User id: ', userId);
     this.albumService.getAlbumsFromUser(userId).subscribe( resp => {
       this.albums = resp;
       this.addValidAlbumsSelected();
@@ -106,8 +112,9 @@ export class AppComponent implements OnInit {
     });
   }
 
-  getUser(): void {
-    console.log("Usuario Selecionado: ", this.user);
+  save(): void {
+    console.log('Usuario Selecionado: ', this.user);
+    console.log('Album Selecionado: ', this.album);
   }
 
   displayFn(user: UserDTO) {

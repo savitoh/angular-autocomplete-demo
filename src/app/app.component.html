@@ -12,9 +12,9 @@
                     matInput formControlName="formUserControl" 
                     [matAutocomplete]="projectAutoComplete"
                     [(ngModel)]="user"
-                    (blur)="getAlbumsByUser(user?.id)">
-            <mat-autocomplete #projectAutoComplete="matAutocomplete" [displayWith]="displayFn"> 
-                <mat-option *ngFor="let user of filteredUsersOptions | async" [value]="user">
+                    (blur)="getAlbumsByUser(user)">
+            <mat-autocomplete #projectAutoComplete="matAutocomplete"> 
+                <mat-option *ngFor="let user of filteredUsersOptions | async" [value]="user.name">
                     {{ user.name }}
                 </mat-option>
             </mat-autocomplete>
@@ -31,6 +31,7 @@
                     aria-label="Number" 
                     matInput formControlName="formAlbumsControl" 
                     [matAutocomplete]="AlbumsAutoComplete"
+                    [(ngModel)] = "album"
                     required>
             <mat-autocomplete #AlbumsAutoComplete="matAutocomplete"> 
                 <mat-option *ngFor="let album of (albums.length === 0 ? [] : (filteredAlbumsOptions | async))" [value]="album.title">
@@ -48,7 +49,7 @@
         <div class="form-element">
             <button mat-raised-button color="primary" 
                     class="button" 
-                    (click)="getUser()"
+                    (click)="save()"
                     [disabled]="!form.valid">
                 Send...
             </button>
