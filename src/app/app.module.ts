@@ -5,6 +5,8 @@ import { AppComponent } from './app.component';
 import { CustomMaterialModule } from './custom-material/custom-material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+
 
 @NgModule({
   declarations: [
@@ -16,7 +18,8 @@ import { CommonModule } from '@angular/common';
     ReactiveFormsModule,
     BrowserModule,
     BrowserAnimationsModule,
-    CustomMaterialModule
+    CustomMaterialModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
